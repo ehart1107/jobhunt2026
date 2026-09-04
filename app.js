@@ -1,3 +1,38 @@
+/* ===================== CONFIG ===================== */
+
+function applyConfig(){
+  const cfg = (typeof DOCKET_CONFIG !== 'undefined') ? DOCKET_CONFIG : {};
+  const title = cfg.siteTitle || 'The Docket';
+  const tagline = cfg.siteTagline || 'One file per application.';
+  const accent = cfg.accentColor || '#B4863F';
+
+  document.title = title + ' — Job Application Tracker';
+  const titleEl = document.getElementById('siteTitle');
+  const taglineEl = document.getElementById('siteTagline');
+  if (titleEl) titleEl.textContent = title;
+  if (taglineEl) taglineEl.textContent = tagline;
+
+  document.documentElement.style.setProperty('--brass', accent);
+  // A soft tint of the accent for backgrounds (tabs, callout boxes) —
+  // derived automatically so a fork only has to set one colour.
+  document.documentElement.style.setProperty('--brass-soft', hexToSoftTint(accent));
+}
+
+function hexToSoftTint(hex){
+  try{
+    const c = hex.replace('#','');
+    const r = parseInt(c.substring(0,2), 16);
+    const g = parseInt(c.substring(2,4), 16);
+    const b = parseInt(c.substring(4,6), 16);
+    const mix = ch => Math.round(ch + (255 - ch) * 0.82);
+    return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+  }catch(e){ return '#F1E4CC'; }
+}
+
+function slugify(str){
+  return (str || 'docket').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'docket';
+}
+
 /* ===================== DATA ===================== */
 
 const STORAGE_KEY = 'docket.jobs.v1';
@@ -520,7 +555,10 @@ function openNewFileModal(url){
   modalCompany.value = url ? guessCompanyFromUrl(url) : '';
   modalRole.value = url ? guessRoleFromUrl(url) : '';
   modalBackdrop.hidden = false;
-  modalCompany.focus();
+  // If a URL came in already (drag-and-drop), that field's done — send focus
+  // to Company for confirmation. Otherwise this is a manual add, so the URL
+  // field — the first one on the form — should be where typing starts.
+  if (url) modalCompany.focus(); else modalUrl.focus();
 }
 
 manualAddBtn.addEventListener('click', () => openNewFileModal(''));
@@ -571,7 +609,8 @@ exportBtn.addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(state.jobs, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'docket-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  const cfg = (typeof DOCKET_CONFIG !== 'undefined') ? DOCKET_CONFIG : {};
+  a.download = slugify(cfg.siteTitle) + '-backup-' + new Date().toISOString().slice(0,10) + '.json';
   a.click();
   URL.revokeObjectURL(a.href);
 });
@@ -599,5 +638,6 @@ importInput.addEventListener('change', () => {
 
 /* ===================== INIT ===================== */
 
+applyConfig();
 renderFileList();
 renderFileView();
