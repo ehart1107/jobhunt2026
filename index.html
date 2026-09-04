@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Docket — Job Application Tracker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="rail">
+    <header class="rail-head">
+      <h1>The Docket</h1>
+      <p class="rail-sub">One file per application.</p>
+    </header>
+
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone-inner">
+        <span class="dropzone-label">Drag a job link here to open a file</span>
+        <span class="dropzone-hint">or</span>
+        <button class="btn-ghost" id="manualAddBtn" type="button">Add a job manually</button>
+      </div>
+    </div>
+
+    <div class="rail-filter">
+      <input type="search" id="searchInput" placeholder="Search files…" aria-label="Search files">
+    </div>
+
+    <ul class="file-list" id="fileList" aria-label="Job files"></ul>
+
+    <div class="rail-foot">
+      <button class="btn-ghost small" id="exportBtn" type="button">Export backup</button>
+      <label class="btn-ghost small" for="importInput">Import backup</label>
+      <input type="file" id="importInput" accept="application/json" hidden>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN PANEL ===================== -->
+  <main class="panel" id="panel">
+    <div class="empty-state" id="emptyState">
+      <p>No file open.</p>
+      <p class="empty-sub">Drop a job posting link on the left, or select a file, to begin.</p>
+    </div>
+
+    <div class="file-view" id="fileView" hidden>
+
+      <!-- File header -->
+      <div class="file-header">
+        <div class="file-header-top">
+          <input class="title-input" id="companyInput" placeholder="Company">
+          <button class="btn-icon danger" id="deleteBtn" title="Delete this file" type="button">Delete file</button>
+        </div>
+        <input class="role-input" id="roleInput" placeholder="Role title">
+        <div class="url-row">
+          <span class="url-icon">↗</span>
+          <a id="urlLink" href="#" target="_blank" rel="noopener">—</a>
+          <button class="btn-ghost tiny" id="editUrlBtn" type="button">edit</button>
+        </div>
+      </div>
+
+      <!-- Key facts grid -->
+      <section class="facts">
+        <h2 class="section-label">Key facts</h2>
+        <div class="facts-grid">
+          <label class="fact">
+            <span>Pay</span>
+            <input type="text" id="factPay" placeholder="e.g. £75k–£90k + comm.">
+          </label>
+          <label class="fact">
+            <span>Glassdoor rating</span>
+            <input type="text" id="factGlassdoor" placeholder="e.g. 3.8 / 5 (240 reviews)">
+          </label>
+          <label class="fact">
+            <span>Maternity / parental pay</span>
+            <input type="text" id="factMaternity" placeholder="e.g. 6 months full pay">
+          </label>
+          <label class="fact">
+            <span>Office location</span>
+            <input type="text" id="factLocation" placeholder="e.g. Farringdon, London">
+          </label>
+          <label class="fact">
+            <span>Days in office</span>
+            <input type="text" id="factDays" placeholder="e.g. Tue / Wed / Thu">
+          </label>
+          <label class="fact">
+            <span>Application platform (ATS)</span>
+            <input type="text" id="factAts" placeholder="e.g. Greenhouse — auto-filled where recognised">
+          </label>
+          <label class="fact fact-wide">
+            <span>Other notable details</span>
+            <textarea id="factOther" rows="2" placeholder="Benefits, equity, notice period, anything else worth remembering"></textarea>
+          </label>
+        </div>
+      </section>
+
+      <!-- Stage tracker -->
+      <section class="stage-block">
+        <h2 class="section-label">Where things stand</h2>
+        <div class="tabs" id="stageTabs" role="tablist"></div>
+
+        <div class="stage-pane" id="stagePane">
+          <div class="cv-callouts" id="cvCalloutsWrap" hidden>
+            <div class="ats-tips" id="atsTips"></div>
+            <label for="cvCallouts">Callouts from the job description to reflect in my CV</label>
+            <textarea id="cvCallouts" rows="4" placeholder="Paste or note the specific requirements, keywords or phrases from the posting worth mirroring in the CV for this application."></textarea>
+          </div>
+          <label class="notes-label" for="stageNotes" id="notesLabel">Notes</label>
+          <textarea id="stageNotes" rows="6" placeholder="Notes for this stage — who you spoke to, what was said, what's next."></textarea>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="modalTitle">New file</h3>
+    <label class="modal-field">
+      <span>Job posting URL</span>
+      <input type="url" id="modalUrl" placeholder="https://…">
+    </label>
+    <label class="modal-field">
+      <span>Company</span>
+      <input type="text" id="modalCompany" placeholder="Company name">
+    </label>
+    <label class="modal-field">
+      <span>Role title</span>
+      <input type="text" id="modalRole" placeholder="Guessed from the URL where possible — check it">
+    </label>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="modalCancel" type="button">Cancel</button>
+      <button class="btn-solid" id="modalSave" type="button">Open file</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="stageModalBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3>Add a stage</h3>
+    <label class="modal-field">
+      <span>Stage name</span>
+      <input type="text" id="stageNameInput" placeholder="e.g. Panel interview">
+    </label>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="stageModalCancel" type="button">Cancel</button>
+      <button class="btn-solid" id="stageModalSave" type="button">Add stage</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
