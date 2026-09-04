@@ -93,6 +93,17 @@ button, input, textarea{
 .dropzone-label{ font-size:13px; color:var(--ink-soft); }
 .dropzone-hint{ font-size:11px; color:var(--ink-soft); opacity:.7; }
 
+.paste-input{
+  width:100%;
+  padding:8px 10px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--card);
+  text-align:center;
+}
+.paste-input:focus{ outline:2px solid var(--brass); outline-offset:1px; text-align:left; }
+.paste-input::placeholder{ text-align:center; }
+
 .rail-filter{ padding:0 16px 12px; }
 .rail-filter input{
   width:100%;

@@ -120,6 +120,7 @@ const cvCallouts     = document.getElementById('cvCallouts');
 const atsTips        = document.getElementById('atsTips');
 
 const dropzone       = document.getElementById('dropzone');
+const pasteUrlInput  = document.getElementById('pasteUrlInput');
 const manualAddBtn   = document.getElementById('manualAddBtn');
 
 const modalBackdrop  = document.getElementById('modalBackdrop');
@@ -629,6 +630,25 @@ dropzone.addEventListener('drop', e => {
   dropzone.classList.remove('drag-over');
   const url = extractUrlFromDataTransfer(e.dataTransfer);
   openNewFileModal(url);
+});
+
+// Paste-a-link input: fires as soon as a URL is pasted in, or on Enter.
+pasteUrlInput.addEventListener('paste', e => {
+  const text = (e.clipboardData || window.clipboardData).getData('text').trim();
+  if (/^https?:\/\//i.test(text)){
+    e.preventDefault();
+    openNewFileModal(text);
+    pasteUrlInput.value = '';
+  }
+});
+
+pasteUrlInput.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const val = pasteUrlInput.value.trim();
+  if (!val) return;
+  openNewFileModal(val);
+  pasteUrlInput.value = '';
 });
 
 // Also allow dropping a link anywhere on the window to land on the dropzone flow
