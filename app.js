@@ -277,8 +277,13 @@ function guessRoleFromUrl(url){
     });
 
     if (!best) return '';
+    const MINOR_WORDS = new Set(['of','and','the','for','at','to','in','a','an','or','&']);
     return best.split(' ')
-      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .map((w, i) => {
+        const lower = w.toLowerCase();
+        if (i > 0 && MINOR_WORDS.has(lower)) return lower;
+        return lower.charAt(0).toUpperCase() + lower.slice(1);
+      })
       .join(' ');
   }catch(e){ return ''; }
 }
@@ -550,11 +555,37 @@ searchInput.addEventListener('input', () => {
 
 /* ===================== EVENTS: NEW FILE MODAL ===================== */
 
+// Tracks the last value we auto-filled, so a live re-guess (as the URL
+// field changes) doesn't clobber something the person typed themselves.
+let modalLastGuessCompany = '';
+let modalLastGuessRole = '';
+
+function updateModalGuessesFromUrl(){
+  const url = modalUrl.value.trim();
+  if (!url) return;
+  const companyGuess = guessCompanyFromUrl(url);
+  const roleGuess = guessRoleFromUrl(url);
+
+  if (companyGuess && (modalCompany.value === '' || modalCompany.value === modalLastGuessCompany)){
+    modalCompany.value = companyGuess;
+    modalLastGuessCompany = companyGuess;
+  }
+  if (roleGuess && (modalRole.value === '' || modalRole.value === modalLastGuessRole)){
+    modalRole.value = roleGuess;
+    modalLastGuessRole = roleGuess;
+  }
+}
+
+modalUrl.addEventListener('input', updateModalGuessesFromUrl);
+
 function openNewFileModal(url){
   modalUrl.value = url || '';
-  modalCompany.value = url ? guessCompanyFromUrl(url) : '';
-  modalRole.value = url ? guessRoleFromUrl(url) : '';
+  modalCompany.value = '';
+  modalRole.value = '';
+  modalLastGuessCompany = '';
+  modalLastGuessRole = '';
   modalBackdrop.hidden = false;
+  if (url) updateModalGuessesFromUrl();
   // If a URL came in already (drag-and-drop), that field's done — send focus
   // to Company for confirmation. Otherwise this is a manual add, so the URL
   // field — the first one on the form — should be where typing starts.
